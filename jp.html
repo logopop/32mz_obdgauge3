@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+
+
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Where's the Jeep?</title>
+		<link rel = "stylesheet" href = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>
+		  
+	</head>
+
+	<body>
+		<br>
+		<h2>
+		Where's the Jeep?
+		</h2>
+		<br>
+		<div id = "map" style = "width: 900px; height: 1000px"></div><script src = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+		<script language = javascript>
+	   
+		var vTime, vDate, vLat, vLon, vHdg, vSpd, vRad;
+		var x, y;
+		var caption;
+		var xmlDoc;
+		 
+
+		function map()
+		{		
+			if (window.XMLHttpRequest)
+			{
+				xhttp = new XMLHttpRequest();
+			}
+			else // code for IE5 and IE6
+			{
+				xhttp = new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			xhttp.open("GET", "pos.xml", true);			 
+			xhttp.send();
+	 
+			xhttp.onload = function()
+			{	
+				xmlDoc = xhttp.responseXML;
+												
+				// Parse values
+				x = xmlDoc.getElementsByTagName("time")[0];
+				y = x.childNodes[0];
+				vTime = y.nodeValue;
+				x = xmlDoc.getElementsByTagName("date")[0];
+				y = x.childNodes[0];
+				vDate = y.nodeValue;
+				x = xmlDoc.getElementsByTagName("lat")[0];
+				y = x.childNodes[0];
+				vLat = y.nodeValue;
+				x = xmlDoc.getElementsByTagName("lon")[0];
+				y = x.childNodes[0];
+				vLon = y.nodeValue;
+				x = xmlDoc.getElementsByTagName("hdg")[0];
+				y = x.childNodes[0];
+				vHdg = y.nodeValue;
+				x = xmlDoc.getElementsByTagName("spd")[0];
+				y = x.childNodes[0];
+				vSpd = y.nodeValue;
+				x = xmlDoc.getElementsByTagName("radiation")[0];
+				y = x.childNodes[0];
+				vRad = y.nodeValue;
+
+				caption = vDate + " " + vTime + "\n" + vSpd + " km/h " + vHdg + " degrees " + vRad + " uSi";
+				
+				// Creating map options
+				var mapOptions = 
+				{
+					center: [vLat, vLon],
+					zoom: 14					
+				}
+								
+				// Icon options
+				var iconOptions = 
+				{
+				   iconUrl: 'jeep2.png',
+				   iconSize: [50, 50]
+				}
+				
+				// Creating a custom icon
+				var customIcon = L.icon(iconOptions);				
+			
+				// Options for the marker
+				var markerOptions = 
+				{
+					title: caption,
+					clickable: false,
+					draggable: false,
+					icon: customIcon
+				}			
+				
+				var marker = new L.Marker([vLat, vLon], markerOptions);
+				 
+				// Creating a map object
+				var map = new L.map('map', mapOptions);
+				 
+				// Creating a Layer object
+				var layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+
+				// Adding layer to the map
+				map.addLayer(layer);
+				marker.bindPopup(caption).openPopup(); 	 
+				marker.addTo(map);
+				 
+				var scale = L.control.scale(); // Creating scale control
+				scale.addTo(map); // Adding scale control to the map
+				
+				// Creating Image overlay
+				var imageUrl = 'high.jpg';
+				var imageBounds = [[59.847000, 10.692000], [59.86800, 10.772000]];
+				var overlay = L.imageOverlay(imageUrl, imageBounds);
+				overlay.addTo(map);
+
+				
+			}	
+		}
+		
+		map();
+				  
+		xhttp.onerror = function() 
+		{
+			alert("XML Request failed");
+		};
+						
+	  </script>
+	</body>
+
+</html>
+
+
+	
